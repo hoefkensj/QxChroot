@@ -1,6 +1,11 @@
-def spawn(file_name):
-	with open(f'{file_name}.ini' , 'w') as file:
-		file.write(f'[DEFAULT]\nfilename\t:\t{file_name}\nfiletype\t:\tini')
+from configparser import ConfigParser,ExtendedInterpolation
+def cfg():
+	cfg = ConfigParser(interpolation=ExtendedInterpolation(), delimiters=':')  # create empty config
+	cfg.optionxform = lambda option: option
+	return cfg
+	
+
+
 	
 def create(file_Config,dct_Config, cfg_config):
 	cfg= tocfg(dct_Config, cfg_config)
@@ -16,7 +21,7 @@ def todct(cfg,dct={}):
 		dct[section]= dict(cfg[section])
 	return dct
 
-def tocfg(dct,cfg):
+def cfg(dct,cfg):
 	cfg.read_dict(dct)
 	return dct
 

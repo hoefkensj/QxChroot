@@ -1,16 +1,23 @@
 # DEFINITIONS
 # Supersu run chk_mnt is_mount umount mount
 import subprocess
-import shlex
+import shlex,os,sys
 
-def supersu(dummy):
-	run('echo', 'Access : OK')
+def sudo():
+	euid = os.geteuid()
+	if euid != 0:
+		print("Script not started as root. Running sudo..")
+		args = ['sudo', sys.executable] + sys.argv + [os.environ]
+		# the next line replaces the currently-running process with the sudo
+		os.execlpe('sudo', *args)
+	print('Running. Your euid is', euid)
+
 
 
 def run(cmd, args=''):
-	args = f'-S {cmd} {args}'
+	args = f' {cmd} {args}'
 	su = 'sudo'
-	bashline = [su]  + shlex.split(args)
+	bashline = []  + shlex.split(args)
 	allput = ['stdout:\n']
 	process = subprocess.Popen(bashline, stdout=subprocess.PIPE, universal_newlines=True)
 	ret = {'RETURN_CODE' : '','STDOUT': ''}
