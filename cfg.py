@@ -1,39 +1,47 @@
 from configparser import ConfigParser,ExtendedInterpolation
-def cfg():
+import dct,os
+
+
+
+def new():
 	cfg = ConfigParser(interpolation=ExtendedInterpolation(), delimiters=':')  # create empty config
 	cfg.optionxform = lambda option: option
 	return cfg
 	
-
-
+def create(file,config):
+	cfg= tocfg(dct_Config, config)
+	write(file,config)
+def get_rrhome():
+	path = f'{"/".join(os.path.realpath(__file__).split("/")[0:-1])}/'
+	print(path)
+	return path
 	
-def create(file_Config,dct_Config, cfg_config):
-	cfg= tocfg(dct_Config, cfg_config)
-	write(file_Config, cfg)
 
+def read_from(file,config):
+	config.read(file)
+	return config
 
-def read(file_Config, cfg_Config):
-	cfg_Config.read(file_Config)
-	return cfg_Config
-
-def todct(cfg,dct={}):
+def to_dct(cfg,dct={}):
 	for section in cfg.keys():
 		dct[section]= dict(cfg[section])
 	return dct
 
-def cfg(dct,cfg):
+def to_cfg(dct,cfg):
 	cfg.read_dict(dct)
 	return dct
 
 
-def write(file_Config, cfg_Config):
-	cfg = cfg_Config
-	with open(file_Config, 'w') as configfile:
-		cfg.write(configfile)
+def get(src):
+	cfg=new()
+	inifile=f'{get_rrhome()}/Rootes/{src.upper()}.ini'
+	cfg = read_from(inifile, cfg)
+	return cfg
 
-def main():
-	return spawn
-
+def write(filename,cfg):
+	with open(filename, 'w') as file:
+		cfg.write(file)
+		
+		
 if __name__ == '__main__':
 	main = main()
 	main('test')
