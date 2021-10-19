@@ -89,10 +89,7 @@ def umount(path):
 
 
 def mount(**k):
-	if k['file'] is None:
-		STAT = run(f"mount {k['args']} {k['path'].lower()}")
-	else:
-		STAT = run(f"mount {k['args']} {k['file']} {k['path'].lower()}")
+	STAT = run(f"mount {k['args']}\n")
 	return STAT
 #
 # def make_rslave(path):

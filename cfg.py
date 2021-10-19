@@ -1,21 +1,21 @@
 from configparser import ConfigParser,ExtendedInterpolation
-import dct,os
 
+
+def __init__():
+	return new()
 
 
 def new():
 	cfg = ConfigParser(interpolation=ExtendedInterpolation(), delimiters=':')  # create empty config
 	cfg.optionxform = lambda option: option
+	print('created new cfg')
 	return cfg
 	
 def create(file,config):
 	cfg= tocfg(dct_Config, config)
-	write(file,config)
-def get_rrhome():
-	path = f'{"/".join(os.path.realpath(__file__).split("/")[0:-1])}/'
-	print(path)
-	return path
+	write(file, config)
 	
+
 
 def read_from(file,config):
 	config.read(file)
@@ -31,10 +31,9 @@ def to_cfg(dct,cfg):
 	return dct
 
 
-def get(src):
+def get(ini):
 	cfg=new()
-	inifile=f'{get_rrhome()}/Rootes/{src.upper()}.ini'
-	cfg = read_from(inifile, cfg)
+	cfg = read_from(ini, cfg)
 	return cfg
 
 def write(filename,cfg):
@@ -43,5 +42,5 @@ def write(filename,cfg):
 		
 		
 if __name__ == '__main__':
-	main = main()
-	main('test')
+	new()
+
