@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 import bash, cfg, clit
 import sys,argparse,os
-
+from configparser import ConfigParser, ExtendedInterpolation
 from bash import *
 
 # def run(a,**k):
@@ -9,15 +9,14 @@ from bash import *
 # 	thisproc=subprocess.Popen(a , stdout=subprocess.PIPE, universal_newlines=True)
 # 	return thisproc
 
-def root(helper='sudo', trys=0):
+def root(helper='sudo',trys=0):
 	euid = os.geteuid
-	username=run(f'whoami')
 	if euid() != 0:
 		print("Script not started as root. Running sudo..")
 		args = [helper, sys.executable] + sys.argv + [os.environ]
 		# the next line replaces the currently-running process with the sudo
 		os.execlpe(helper, *args)
-	else: return euid,username
+	else: return euid
 	root(trys=(trys-1)) if trys else sys.exit("couldn't get root")
 
 
@@ -29,10 +28,10 @@ def shm(shm):
 	run('chmod 1777 /dev/shm')
 
 def unpack_dct(Config):
-	MNT_FS		= Config['OPTIONS']
-	STORL 		= Config['DEVICE']
-	STORF 		= Config['SPECIAL']
-	MNT 		= Config['REROOT']
+	MNT_FS		= dct_Config['OPTIONS']
+	STORL 		= dct_Config['DEVICE']
+	STORF 		= dct_Config['SPECIAL']
+	MNT 		= dct_Config['REROOT']
 	root = (STORL['root'], MNT['root'], MNT_FS['f2fs'])
 	boot = (STORL['boot'], MNT['boot'], MNT_FS['vfat'])
 	proc = (STORF['proc'], MNT['proc'], MNT_FS['proc'])
@@ -46,7 +45,7 @@ def unpack_dct(Config):
 	return settings
 
 
-def start(seqs,env):
+def start(seqs):
 
 	for seq in seqs:
 		wnl(f'mount {seqs[seq]}')
@@ -55,30 +54,14 @@ def start(seqs,env):
 	#$shm(args['shm'])
 	wnl('copieng resolf.conf...')
 	
-	run( f'cp -vf --dereference /etc/resolv.conf /os/{env}/etc')
-	#wnl('changing directory ...')
+	run( f'cp -vf --dereference /etc/resolv.conf /os/arch/etc')
+	wnl('changing directory ...')
 	#spawn_afterchroot(dct['MNT'])
 	#run( f'{args[0][1]}')
 	#prepp2()
 
 	return 0
 
-
-def startx(seqs, env,username=''):
-	start(seqs, env)
-	wnl('configuring Xephyr')
-	wnl(f'cp /home/{username}/.Xauthority /os/{env}/home/{username}')
-	run(f'cp /home/{username}/.Xauthority /os/{env}/home/{username}')
-	run( f'konsole -e chroot /os/{env} /bin/bash')
-	run(f'chroot /os/{env} /bin/bash ')
-	#run(f'source /etc/profile')
-	run(f'su {username}')
-	run(f'cd ~/')
-	run(f'xhost +')
-	#run(f'Xephyr -br -ac -noreset -screen 1280x720 :1 &'
-	run(f'Xephyr -ac -screen 1920x1080 -br -reset -terminate -name "Xephyr" 2> /dev/null :4 & export DISPLAY=:4.0')
-	run(f'sudo -u {username} dbus-launch /usr/bin/startplasma-x11 2> /dev/null')
-	
 def stop(MNT):
 	umount(MNT['proc'])
 	umount(MNT['sys'])
@@ -129,8 +112,7 @@ def getargs(): #get arguments from commandline
 
 
 def main():
-	_, xuser = root()
-	xuser='hoefkens'
+	root()
 	ReRoot_Home=home()
 	a=getargs()
 
@@ -144,12 +126,11 @@ def main():
 	
 	dct_fnc = {
 			'start': start,
-			'startx': startx,
 			'stop' : stop
 			}
 	act = dct_fnc[a.cmd]
 	#
-	act(seqs,a.env,xuser)
+	act(seqs)
 	run( f'konsole -e chroot /os/{a.env} /bin/bash')
 
 if __name__ == '__main__':

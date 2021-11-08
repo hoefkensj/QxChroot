@@ -20,7 +20,7 @@ dev		: /dev
 [MNT]
 PATH	: /os/${mntROOT}
 root	: ${PATH}
-boot	: ${PATH}/boot/efi
+boot	: ${PATH}/boot
 proc	: ${PATH}/proc
 sys		: ${PATH}/sys
 dev		: ${PATH}/dev
@@ -28,7 +28,7 @@ etc : ${PATH}/etc
 
 
 [MNT_FS]
-f2fs	: -o rw,acl,active_logs=6,background_gc=on,user_xattr -t f2fs
+f2fs	: -o rw,noatime -t reiserfs
 vfat 	: -o rw -t vfat
 proc 	: --types proc
 sys 	: --rbind
@@ -42,7 +42,7 @@ root	: ${PATH}/${lblROOT}
 boot	: ${PATH}/${lblBOOT}
 
 [SPECIAL]
-swap:
+swap:p
 proc	: /proc
 sys		: /sys
 dev		: /dev
@@ -56,7 +56,7 @@ dev		: ${PATH}/dev
 etc 	: ${PATH}/etc
 
 [OPTIONS]
-f2fs	: -o rw,acl,active_logs=6,background_gc=on,user_xattr -t f2fs
+reiserfs: -o rw,acl,noatime -t reiserfs
 vfat 	: -o rw -t vfat
 proc 	: --types proc
 sys 	: --rbind
@@ -64,7 +64,7 @@ dev 	: --rbind
 shm 	: -t tmpfs -o nosuid,nodev,noexec
 
 [SEQUENCES]
-ROOT 	: 	${OPTIONS:f2fs}	${DEVICE:root}	${REROOT:root}
+ROOT 	: 	${OPTIONS:reiserfs}	${DEVICE:root}	${REROOT:root}
 BOOT 	: 	${OPTIONS:vfat}	${DEVICE:boot}	${REROOT:boot}
 PROC 	: 	${OPTIONS:proc}	${SPECIAL:proc}	${REROOT:proc}
 SYS 	:	${OPTIONS:sys}	${SPECIAL:sys}	${REROOT:sys}
